@@ -172,7 +172,7 @@ end
                 <!-- 左侧目录 -->
                 <div class="offcanvas offcanvas-start" tabindex="-1" id="listOffcanvas" aria-labelledby="listOffcanvasLabel">
                     <div class="offcanvas-header">
-                        <h5 class="offcanvas-title" id="offcanvasExampleLabel">操作</h5>
+                        <h5 class="offcanvas-title" id="offcanvasExampleLabel">菜单</h5>
                         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                     </div>
                     <div class="scrollable-content-problem mb-0 offcanvas-body" style="overflow-y: auto;">
@@ -226,9 +226,9 @@ end
                 <?lsp 
                 list_file = ''
                 if (not get.action) and session.access_token then
-                    list_file = '/user/list.txt'
+                    list_file = '/list.txt'
                 else
-                    list_file = '/user/list-nologin.txt'
+                    list_file = '/list-nologin.txt'
                 end
                 ?>
                 fetch("<?lsp=list_file?>")

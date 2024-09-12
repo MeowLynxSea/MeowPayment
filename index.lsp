@@ -1,88 +1,8 @@
 <?lsp
 
-local githubClientID = 'Ov23lizExZgmQZZ6lDTX'
-local githubClientSecret = '02b3ed9c12272c8db89e465ffdb9c62958fcf072'
-
-
-local authorizeURL = 'https://github.com/login/oauth/authorize'
-local tokenURL = 'https://github.com/login/oauth/access_token'
-local apiURLBase = 'https://api.github.com/'
-local baseURL = 'https://pay.meowdream.cn'
-
 local session=request:session(true)
 
 local get = request:data()
-
-local function http_build_query(params)
-   local q={}
-   for k,v in pairs(params) do table.insert(q,k..'='..v) end
-   return table.concat(q,'&')
-end
-
-local function echo(msg) response:write(msg) end
-
-local function apiRequest(url, query)
-   local  headers={
-      Accept='application/vnd.github.v3+json, application/json',
-      ['User-Agent'] = 'https://pay.meowdream.cn/'
-   }
-   if session.access_token then
-      headers.Authorization = 'Bearer ' .. session.access_token
-   end
-   local http = require"httpm".create{shark=mako.sharkclient()}
-   local json,err = http:json(url, query, {header=headers})
-   if not json then
-      trace("Failed",url,err)
-      return {}
-   end
-   return json
-end
-
--- 触发登录
-if get.action == 'login' then
-  session.access_token = nil
-
-  -- Generate a random hash and store in the session
-   session.state = ba.b64urlencode(ba.rndbs(16))
-
-  local params = {
-    response_type = 'code',
-    client_id = githubClientID,
-    redirect_uri = baseURL .. '/user/auth.lsp',
-    scope = 'user',
-    state = session.state
-  }
-
-  -- Redirect the user to Github's authorization page
-  response:sendredirect(authorizeURL..'?'..http_build_query(params))
-end
-
--- 触发登出
-if get.action == 'logout' then
-  session.access_token = nil
-  response:sendredirect(baseURL.. '/user/auth.lsp')
-end
-
--- 获取授权码
-if get.code then
-
-  -- Verify the state matches our stored state
-  if not get.state or session.state ~= get.state then
-     response:sendredirect(baseURL .. '?error=invalid_state')
-  end
-
-  -- Exchange the auth code for an access token
-  token = apiRequest(tokenURL, {
-    grant_type = 'authorization_code',
-    client_id = githubClientID,
-    client_secret = githubClientSecret,
-    redirect_uri = baseURL .. '/user/auth.lsp',
-    code = get.code
-  })
-  session.access_token = token.access_token
-
-  response:sendredirect(baseURL.. '/user/auth.lsp')
-end
 
 ?>
 
@@ -93,7 +13,7 @@ end
         <!-- 设置文档编码和视口 -->
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>身份认证中心 | MeowPayment</title>
+        <title>主页 | MeowPayment</title>
         <!-- 引入 Bootstrap CSS -->
         <link href="/css/bootstrap.min.css" rel="stylesheet">
         <link href="/css/bootstrap-icons.min.css" rel="stylesheet">
@@ -163,7 +83,7 @@ end
         <!-- 页面内容 -->
         <div class="container py-4">
             <div class="row my-5">
-                <h1>身份认证中心</h1>
+                <h1>主页</h1>
                 <!-- 标题 -->
             </div>
             <hr class="divider">
@@ -172,7 +92,7 @@ end
                 <!-- 左侧目录 -->
                 <div class="offcanvas offcanvas-start" tabindex="-1" id="listOffcanvas" aria-labelledby="listOffcanvasLabel">
                     <div class="offcanvas-header">
-                        <h5 class="offcanvas-title" id="offcanvasExampleLabel">操作</h5>
+                        <h5 class="offcanvas-title" id="offcanvasExampleLabel">菜单</h5>
                         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                     </div>
                     <div class="scrollable-content-problem mb-0 offcanvas-body" style="overflow-y: auto;">
@@ -226,9 +146,9 @@ end
                 <?lsp 
                 list_file = ''
                 if (not get.action) and session.access_token then
-                    list_file = '/user/list.txt'
+                    list_file = '/list.txt'
                 else
-                    list_file = '/user/list-nologin.txt'
+                    list_file = '/list-nologin.txt'
                 end
                 ?>
                 fetch("<?lsp=list_file?>")
@@ -275,7 +195,7 @@ end
                                 listItem.classList.add("nav-item", "leftList-link");
                                 listItem.id = link;
                                 listItem.onclick = function() {
-                                    window.location.href=this.id;
+                                    window.location.href = this.id;
                                 };
                                 const anchor = document.createElement("a");
                                 anchor.classList.add("nav-link");
@@ -351,29 +271,9 @@ end
 
                 // 当 DOM 加载完成时执行
                 document.addEventListener("DOMContentLoaded", function(event) {
-                    var urlParams = new URLSearchParams(window.location.search);
-                    var errParam = urlParams.get('error');
-                    if (errParam) {
-                        // 调用loadMarkdown函数并传入read参数的值
-                        if(errParam == 'invalid_state'){
-                            loadMarkdown('/user/invalid_state.md');
-                        } else {
-                            loadMarkdown('/user/unknown_err.md');
-                        }
-                    } else {
-                        <?lsp 
-                        if not default_page then
-                            default_page = ''
-                        end
-
-                        if (not get.action) and session.access_token then
-                            default_page = '/user/success.md'
-                        else
-                            default_page = '/user/unauthed.md'
-                        end
-                        ?>
-                        loadMarkdown("<?lsp=default_page?>");
-                    }
+                    
+                        loadMarkdown("/index.md");
+                    
                     // 初始更新scrollable-content的高度
                     updateScrollableContentHeight();
                 });

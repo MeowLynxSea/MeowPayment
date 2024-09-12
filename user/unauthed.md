@@ -10,7 +10,7 @@
 
 [登录](LocalButton:/user/auth.lsp?action=login)
 
-<br />
+<br>
 
 ## POWERED BY
 ![pic](/image/logo-title.png)
