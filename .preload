@@ -1,0 +1,55 @@
+-- local su=require"sqlutil" -- Load SQL utility library
+-- if not su.exist"data.db" then
+--    -- Create a database environment object and open data/file.sqlite.db
+--    local env,conn = su.open"data.db"
+--    -- 创建一个数据库，其中包含用户的mail,name,password,created_at,salt,balance,is_admin
+--    conn:execute"CREATE TABLE IF NOT EXISTS users (mail TEXT PRIMARY KEY,name TEXT,password TEXT,created_at TEXT,salt TEXT,balance INTEGER,is_admin INTEGER);"
+--    su.close(env,conn)
+-- end
+
+-- local dbname=ba.openio"home":realpath"test-database.db"
+-- local env = luasql.sqlite()
+-- local conn = assert(env:connect(dbname)) -- DB connection used for write operations
+-- assert(conn:setautocommit"EXCLUSIVE") -- EXCLUSIVE for first DB operation only
+-- conn:setbusytimeout(2000)
+-- function onunload() -- auto run when app terminates
+--    trace"Closing DB"
+--    conn:close()
+--    env:close()
+-- end
+
+-- -- Function used for committing and preparing next transaction for EXCLUSIVE use.
+-- --  The function is used exclusively by dbexec below.
+-- local function commit()
+--    while true do
+--       local ok, err = conn:commit"IMMEDIATE" -- Commit and prepare for IMMEDIATE transaction type
+--       if ok then break end
+--       if err ~= "BUSY" then
+--          trace("ERROR: commit failed on exclusive connection:",err)
+--          break
+--       end
+--       trace"BUSY writing, but we will try again"
+--    end
+-- end
+-- commit() -- the two conn:exec above (in EXCLUSIVE mode)
+
+-- -- Create the thread and the function used for inserting callback
+-- -- functions into the thread queue.
+-- local dbthread=ba.thread.create()
+-- function dbexec(doit) -- used by index.lsp
+--    dbthread:run(doit)   -- queue the doit function in index.lsp
+--    dbthread:run(commit) -- queue commit
+-- end
+
+-- -- Opens/creates a new DB 'read' connection object -- i.e. should only
+-- -- be used for read operations
+-- function openconn()
+--    local conn = assert(env:connect(dbname))
+--    if conn then conn:setbusytimeout(2000) end
+--    return conn,env
+-- end
+
+-- -- Returns our persistent DB write connection object
+-- function getexconn()
+--    return conn,env
+-- end
