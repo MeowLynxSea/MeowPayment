@@ -37,5 +37,8 @@ Fast, secure and easy payment docking system
 
 ---
 
-## POWERED BY
+## Powered by
+
 ![pic](/image/logo-title.png)
+
+Published under [Reciprocal Public License](https://github.com/MeowLynxSea/MeowPayment/blob/main/LICENSE)
